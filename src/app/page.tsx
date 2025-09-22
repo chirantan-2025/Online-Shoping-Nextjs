@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button'
-import { FormField, FormItem } from '@/components/ui/form'
+import { FormItem } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import React from 'react'
 
 const page = () => {
   return (
