@@ -6,7 +6,7 @@ import React from 'react'
 const page = () => {
   return (
     <div className='flex items-center justify-center mt-5'>
-      <Button>Chirantan</Button>
+      <Button>Ishita</Button>
       <FormItem><Input /></FormItem>
     </div>
   )
