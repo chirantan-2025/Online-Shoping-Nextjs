@@ -20,5 +20,5 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   password: varchar("password", { length: 255 }).notNull(),
-  role: varchar("role", { length: 50 }).default("customer"),
+  role: varchar("roles", { length: 50 }).default("customer"),
 });
