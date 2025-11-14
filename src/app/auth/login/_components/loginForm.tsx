@@ -34,7 +34,7 @@ const formSchema = z.object({
     ),
 })
 
-const FormRhfInput= () => {
+const LoginForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -42,9 +42,8 @@ const FormRhfInput= () => {
     },
   })
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
-    console.log(data);
-    toast.success("You submitted the following values:")
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values)
   }
 
   return (
@@ -101,7 +100,4 @@ const FormRhfInput= () => {
   )
 }
 
-
-
-export default FormRhfInput
-
+export default LoginForm;
