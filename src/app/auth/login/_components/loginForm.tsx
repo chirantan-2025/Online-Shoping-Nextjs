@@ -43,13 +43,13 @@ const LoginForm = () => {
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
-					className="flex flex-col w-full min-h-screen justify-content items-center gap-6 p-8 rounded-xl 
-			border border-sky-200 
-			 
-			hover:shadow-lg hover:border-sky-400"
+					className="flex flex-col items-center justify-center  w-full max-w-md gap-6 p-6 rounded-xl 
+                    border-1 border-sky-200
+                    transition-all duration-300
+                    hover:shadow-lg hover:border-sky-400 mx-auto my-10"
 				>
 					<div className="flex flex-col items-center gap-2 text-center">
-						<h1 className="text-3xl font-bold text-primary">
+						<h1 className="text-3xl font-bold text-sky-400">
 							Create your account
 						</h1>
 						<p className="text-balance text-xs text-muted-foreground">
@@ -62,9 +62,9 @@ const LoginForm = () => {
 							name="email"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel className="text-primary">Email</FormLabel>
+									<FormLabel className=" text-sky-400 text-lg">Email</FormLabel>
 									<FormControl>
-										<Input placeholder="Enter your Email" {...field} />
+										<Input className="hover:border-sky-400 focus:border-sky-400 focus:ring-0" placeholder="Enter your Email" {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -75,9 +75,10 @@ const LoginForm = () => {
 							name="password"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel className="text-primary">Password</FormLabel>
+									<FormLabel className=" text-sky-400 text-lg">Password</FormLabel>
 									<FormControl>
 										<Input
+										   className="hover:border-sky-400 focus:border-sky-400 focus:ring-0" 
 											type="password"
 											placeholder="***********"
 											{...field}
@@ -87,7 +88,7 @@ const LoginForm = () => {
 									<div className="text-right mt-1">
 										<a
 											href="/auth/forgot-password"
-											className="text-sm text-primary hover:underline"
+											className="text-sm text-sky-400 hover:underline"
 										>
 											Forgot Password?
 										</a>
@@ -97,17 +98,16 @@ const LoginForm = () => {
 						/>
 						<Button
 							type="submit"
-							className="w-full cursor-pointer"
-						
+							className="w-full cursor-pointer bg-sky-400 hover:bg-sky-700 font-bold text-md"
 						>
 							Login
 						</Button>
 					
 					
 					</div>
-					<div className="text-center text-sm">
+					<div className="text-center text-md">
 						Don&apos;t have an account?{" "}
-						<a href="/auth/register" className="underline underline-offset-4">
+						<a href="/auth/register" className="underline underline-offset-4 text-sky-400 hover:text-sky-700">
 							Sign Up
 						</a>
 					</div>
