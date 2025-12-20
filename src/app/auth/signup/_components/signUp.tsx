@@ -67,7 +67,7 @@ const SignUp = () => {
               Enter your credentials below to create new account
             </p>
           </div>
-          <div className="grid gap-2">
+          <div className="grid">
             <FormField
               control={form.control}
               name="username"
@@ -139,14 +139,6 @@ const SignUp = () => {
                     />
                   </FormControl>
                   <FormMessage />
-                  {/* <div className="text-right mt-1">
-                                        <a
-                                            href="/auth/forgot-password"
-                                            className="text-sm text-sky-400 hover:underline"
-                                        >
-                                            Forgot Password?
-                                        </a>
-                                    </div> */}
                 </FormItem>
               )}
             />
@@ -167,20 +159,38 @@ const SignUp = () => {
                     />
                   </FormControl>
                   <FormMessage />
-                  <div className="text-right mt-1">
+                  {/* <div className="text-right mt-1">
                     <a
                       href="/auth/forgot-password"
                       className="text-sm text-sky-400 hover:underline"
                     >
                       Forgot Password?
                     </a>
-                  </div>
+                  </div> */}
                 </FormItem>
               )}
             />
+            <div className="flex items-start gap-3 mt-4">
+              <input
+                 type="checkbox"
+                 id="terms"
+                 className="mt-1 h-4 w-4 rounded border-gray-300 
+                   focus:ring-0 focus:outline-none 
+                   text-sky-500 cursor-pointer"
+                  required
+               />
+               <label htmlFor="terms" className="text-sm text-gray-600">
+                  I agree to the{" "}
+                 <a href="/terms" className="text-sky-500 hover:underline">
+                   Terms & Conditions
+                 </a>
+               </label>
+             </div>
+
+             {/* SUBMIT button  */}
             <Button
               type="submit"
-              className="w-full cursor-pointer bg-sky-400 hover:bg-sky-700 font-bold text-md"
+              className="w-1/2 mx-auto cursor-pointer bg-sky-400 hover:bg-sky-700 font-bold text-md mt-4"
             >
               Login
             </Button>
