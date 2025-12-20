@@ -15,7 +15,7 @@ if (fs.existsSync(envPath)) {
 }
 
 // Fallback: use direct connection string if env var is not set
-const databaseUrl = process.env.DATABASE_URL || "postgresql://postgres:password@localhost:5432/onlineshop";
+const databaseUrl = process.env.DATABASE_URL || "";
 
 export default defineConfig({
   schema: "./src/db/schema.ts",
