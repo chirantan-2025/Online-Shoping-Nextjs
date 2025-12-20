@@ -1,9 +1,10 @@
 import React from 'react'
+import ChangePassword from './_components/ChangePassForm'
 
 const page = () => {
   return (
     <div>
-      girlll
+      <ChangePassword />
     </div>
   )
 }

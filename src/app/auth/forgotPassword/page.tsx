@@ -1,5 +1,5 @@
 import React from 'react'
-import EmailOtp from './_components/emailOtp'
+import EmailOtp from './_components/emailOtpform'
 
 const ForgotPassword = () => {
   return (
