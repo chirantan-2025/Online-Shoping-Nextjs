@@ -11,7 +11,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-
+import { signIn } from "next-auth/react";
+import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = z.object({
@@ -23,7 +26,10 @@ const formSchema = z.object({
 });
 
 const LoginForm = () => {
-
+	const router = useRouter();
+	const searchParams = useSearchParams();
+	const [isLoading, setIsLoading] = useState(false);
+	const callbackUrl = searchParams.get("callbackUrl") || "/";
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -34,7 +40,30 @@ const LoginForm = () => {
 	});
 
 	const onSubmit = async (values: z.infer<typeof formSchema>) => {
-		console.log(values)
+		setIsLoading(true);
+		try {
+			const result = await signIn("credentials", {
+				email: values.email,
+				password: values.password,
+				redirect: false,
+			});
+
+			if (result?.error) {
+				toast.error("Invalid email or password");
+				return;
+			}
+
+			if (result?.ok) {
+				toast.success("Login successful!");
+				router.push(callbackUrl);
+				router.refresh();
+			}
+		} catch (error) {
+			console.error("Login error:", error);
+			toast.error("An error occurred. Please try again.");
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	return (
@@ -49,10 +78,10 @@ const LoginForm = () => {
 				>
 					<div className="flex flex-col items-center gap-2 text-center">
 						<h1 className="text-3xl font-bold text-sky-400">
-							Create your account
+							Welcome Back
 						</h1>
 						<p className="text-balance text-xs text-muted-foreground">
-							Enter your credentials below to create new account
+							Enter your credentials below to login to your account
 						</p>
 					</div>
 					<div className="grid gap-6">
@@ -97,16 +126,17 @@ const LoginForm = () => {
 						/>
 						<Button
 							type="submit"
-							className="w-full cursor-pointer bg-sky-400 hover:bg-sky-700 font-bold text-md"
+							disabled={isLoading}
+							className="w-full cursor-pointer bg-sky-400 hover:bg-sky-700 font-bold text-md disabled:opacity-50 disabled:cursor-not-allowed"
 						>
-							Login
+							{isLoading ? "Logging in..." : "Login"}
 						</Button>
 					
 					
 					</div>
 					<div className="text-center text-md">
 						Don&apos;t have an account?{" "}
-						<a href="/auth/register" className="underline underline-offset-4 text-sky-400 hover:text-sky-700">
+						<a href="/auth/signup" className="underline underline-offset-4 text-sky-400 hover:text-sky-700">
 							Sign Up
 						</a>
 					</div>

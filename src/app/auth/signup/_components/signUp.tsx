@@ -9,31 +9,38 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-
 import { z } from "zod";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-const formSchema = z.object({
-  username: z.string().min(2, "Name is required"),
-  email: z.string().min(1, "Email is required").email("Invalid email"),
-  mobile_no: z
-    .string()
-    .min(10, "Ph no. is required")
-    .regex(/^[6-9]\d{9}$/, "Invalid mobile number"),
-  password: z
-    .string()
-    .min(4, "Password must be at least 4 characters")
-    .max(20, "Password must be at most 20 characters"),
-
-  confirm_password: z
-    .string()
-    .min(4, "Password must be at least 4 characters")
-    .max(20, "Password must be at most 20 characters"),
-});
+const formSchema = z
+  .object({
+    username: z.string().min(2, "Name is required"),
+    email: z.string().min(1, "Email is required").email("Invalid email"),
+    mobile_no: z
+      .string()
+      .min(10, "Ph no. is required")
+      .regex(/^[6-9]\d{9}$/, "Invalid mobile number"),
+    password: z
+      .string()
+      .min(4, "Password must be at least 4 characters")
+      .max(20, "Password must be at most 20 characters"),
+    confirm_password: z
+      .string()
+      .min(4, "Password must be at least 4 characters")
+      .max(20, "Password must be at most 20 characters"),
+  })
+  .refine((data) => data.password === data.confirm_password, {
+    message: "Passwords don't match",
+    path: ["confirm_password"],
+  });
 
 const SignUp = () => {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -46,7 +53,36 @@ const SignUp = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: values.username,
+          email: values.email,
+          phone: values.mobile_no,
+          password: values.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.message || "Registration failed");
+        return;
+      }
+
+      toast.success(data.message || "Registration successful!");
+      router.push("/auth/login");
+    } catch (error) {
+      console.error("Signup error:", error);
+      toast.error("An error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -172,36 +208,37 @@ const SignUp = () => {
             />
             <div className="flex items-start gap-3 mt-4">
               <input
-                 type="checkbox"
-                 id="terms"
-                 className="mt-1 h-4 w-4 rounded border-gray-300 
+                type="checkbox"
+                id="terms"
+                className="mt-1 h-4 w-4 rounded border-gray-300 
                    focus:ring-0 focus:outline-none 
                    text-sky-500 cursor-pointer"
-                  required
-               />
-               <label htmlFor="terms" className="text-sm text-gray-600">
-                  I agree to the{" "}
-                 <a href="/terms" className="text-sky-500 hover:underline">
-                   Terms & Conditions
-                 </a>
-               </label>
-             </div>
+                required
+              />
+              <label htmlFor="terms" className="text-sm text-gray-600">
+                I agree to the{" "}
+                <a href="/terms" className="text-sky-500 hover:underline">
+                  Terms & Conditions
+                </a>
+              </label>
+            </div>
 
-             {/* SUBMIT button  */}
+            {/* SUBMIT button  */}
             <Button
               type="submit"
-              className="w-1/2 mx-auto cursor-pointer bg-sky-400 hover:bg-sky-700 font-bold text-md mt-4"
+              disabled={isLoading}
+              className="w-1/2 mx-auto cursor-pointer bg-sky-400 hover:bg-sky-700 font-bold text-md mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Login
+              {isLoading ? "Signing up..." : "Sign Up"}
             </Button>
           </div>
           <div className="text-center text-md">
-            Don&apos;t have an account?{" "}
+            Already have an account?{" "}
             <a
-              href="/auth/register"
+              href="/auth/login"
               className="underline underline-offset-4 text-sky-400 hover:text-sky-700"
             >
-              Sign Up
+              Login
             </a>
           </div>
         </form>

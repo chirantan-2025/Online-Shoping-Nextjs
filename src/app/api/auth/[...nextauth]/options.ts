@@ -6,21 +6,25 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 
 declare module "next-auth" {
-	interface Session {
-		user?: {
-			id: string;
-			email?: string | null;
-			role?: string | null;
-			is_email_verified?: boolean
-		};
-	}
+  interface Session {
+    user?: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      role?: string | null;
+      is_email_verified?: boolean;
+    };
+  }
 }
 
 declare module "next-auth/jwt" {
-	interface JWT {
-		id?: string;
-		role?: string;
-	}
+  interface JWT {
+    id?: string;
+    name?: string | null;
+    role?: string;
+    is_email_verified?: boolean;
+    email?: string | null;
+  }
 }
 function getAuthSecret() {
   if (!process.env.NEXTAUTH_SECRET) {
@@ -28,93 +32,97 @@ function getAuthSecret() {
   }
   return process.env.NEXTAUTH_SECRET;
 }
+
 export function auth() {
-	return getServerSession(authOptions);
+  return getServerSession(authOptions);
 }
 
 export const authOptions: NextAuthOptions = {
-    secret: getAuthSecret(),
-	providers: [
-		CredentialsProvider({
-			name: "Credentials",
-			credentials: {
-				email: { label: "Email", type: "email" },
-				password: { label: "Password", type: "password" },
-			},
-			async authorize(credentials) {
-				if (!credentials?.email || !credentials?.password) {
-					return null;
-				}
+  secret: getAuthSecret(),
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
 
-				const user = await db.query.users.findFirst({
-					where: eq(users.email, credentials.email),
-					columns: {
-						id: true,
-						email: true,
-						password: true,
-						is_email_verified: true,
-					},
-					with: {
-						role: {
-							columns: {
-								name: true,
-							},
-						},
-					}
-					
-				});
+        const user = await db.query.users.findFirst({
+          where: eq(users.email, credentials.email),
+          columns: {
+            id: true,
+            name: true,
+            email: true,
+            password: true,
+            is_email_verified: true,
+          },
+          with: {
+            role: {
+              columns: {
+                name: true,
+              },
+            },
+          },
+        });
 
-				if (!user) {
-					return null;
-				}
+        if (!user || !user.role) {
+          return null;
+        }
 
-				const isPasswordValid = await bcrypt.compare(
-					credentials.password,
-					user.password
-				);
+        const isPasswordValid = await bcrypt.compare(
+          credentials.password,
+          user.password
+        );
 
-				if (!isPasswordValid) {
-					return null;
-				}
+        if (!isPasswordValid) {
+          return null;
+        }
 
-				const authed = {
-					id: user.id.toString(),
-					email: user.email,
-					role:user.role.name,
-					is_email_verified:user.is_email_verified
-				};
+        const authed = {
+          name: user.name,
+          id: user.id.toString(),
+          email: user.email,
+          role: user.role.name,
+          is_email_verified: user.is_email_verified,
+        };
 
-				
-
-				return authed;
-			},
-		}),
-	],
-	session: {
-		strategy: "jwt",
-	},
-	pages: {
-		signIn: "/auth/login",
-		error: "/auth/login",
-	},
-	callbacks: {
-		async jwt({ token, user }) {
-			if (user) {
-				token.id = user.id;
-			    token.role = (user as unknown as { role: string }).role;
-				token.is_email_verified = (user as unknown as { is_email_verified: boolean }).is_email_verified
-				token.email = user.email
-			}
-			return token;
-		},
-		async session({ session, token }) {
-			if (session.user && token.id) {
-				session.user.id = token.id as string;
-				session.user.role = token.role as string;
-				session.user.is_email_verified= token.is_email_verified as boolean
-			}
-			return session;
-		},
-	},
-	debug: process.env.NODE_ENV === "development",
+        return authed;
+      },
+    }),
+  ],
+  session: {
+    strategy: "jwt",
+  },
+  pages: {
+    signIn: "/auth/login",
+    error: "/auth/login",
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.name = (user as unknown as { name: string }).name;
+        token.role = (user as unknown as { role: string }).role;
+        token.is_email_verified = (
+          user as unknown as { is_email_verified: boolean }
+        ).is_email_verified;
+        token.email = user.email;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user && token.id) {
+        session.user.name = token.name as string;
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
+        session.user.is_email_verified = token.is_email_verified as boolean;
+      }
+      return session;
+    },
+  },
+  debug: process.env.NODE_ENV === "development",
 };
